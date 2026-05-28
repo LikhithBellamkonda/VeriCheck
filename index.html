@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriCheck AI - Algorithm Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --fg-primary: #e8edf5;
+            --fg-secondary: #8b9cb8;
+            --accent-cyan: #00d4aa;
+            --accent-blue: #3b82f6;
+            --accent-orange: #f59e0b;
+            --border-color: #2a3548;
+            --glow-cyan: rgba(0, 212, 170, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Background Effects */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            top: -200px;
+            right: -100px;
+            background: radial-gradient(circle, var(--accent-cyan), transparent 70%);
+        }
+
+        .orb-2 {
+            bottom: -200px;
+            left: -100px;
+            background: radial-gradient(circle, var(--accent-blue), transparent 70%);
+        }
+
+        /* Navigation */
+        .nav-container {
+            backdrop-filter: blur(20px);
+            background: rgba(10, 15, 26, 0.8);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            position: relative;
+            padding: 12px 24px;
+            font-weight: 500;
+            color: var(--fg-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .nav-tab:hover {
+            color: var(--fg-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab.active {
+            color: var(--accent-cyan);
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background: var(--accent-cyan);
+            border-radius: 2px;
+        }
+
+        /* Main Content */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Algorithm Cards */
+        .algo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .algo-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 40px var(--glow-cyan);
+            transform: translateY(-4px);
+        }
+
+        .algo-header {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), rgba(59, 130, 246, 0.05));
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 24px;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .keyword { color: #ff7b72; }
+        .function { color: #d2a8ff; }
+        .string { color: #a5d6ff; }
+        .comment { color: #8b949e; font-style: italic; }
+        .variable { color: #ffa657; }
+        .number { color: #79c0ff; }
+        .type { color: #7ee787; }
+
+        /* Complexity Badge */
+        .complexity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .badge-o1 { background: rgba(0, 212, 170, 0.15); color: var(--accent-cyan); }
+        .badge-on { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .badge-onlogn { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .badge-onsquare { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
+
+        /* Improvement Tags */
+        .improvement-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--accent-cyan);
+        }
+
+        /* Stats Grid */
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card), rgba(26, 34, 52, 0.5));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.02);
+            border-color: var(--accent-cyan);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: rgba(0, 212, 170, 0.08);
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .comparison-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Accordion */
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .accordion-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .accordion-item.open .accordion-content {
+            max-height: 2000px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--fg-secondary);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mobile-menu-btn span {
+            width: 24px;
+            height: 2px;
+            background: var(--fg-primary);
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs-desktop {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .mobile-nav {
+                display: none;
+                position: fixed;
+                top: 72px;
+                left: 0;
+                right: 0;
+                background: var(--bg-secondary);
+                border-bottom: 1px solid var(--border-color);
+                padding: 16px;
+                z-index: 100;
+            }
+
+            .mobile-nav.open {
+                display: block;
+            }
+
+            .mobile-nav .nav-tab {
+                display: block;
+                width: 100%;
+                margin-bottom: 8px;
+            }
+        }
+
+        /* Animation for elements */
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .animate-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-grid"></div>
+    <div class="bg-gradient-orb orb-1"></div>
+    <div class="bg-gradient-orb orb-2"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-container fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-[72px]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d4aa] to-[#3b82f6] flex items-center justify-center">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12l2 2 4-4"/>
+                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.12 0 4.07.74 5.61 1.97"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold">VeriCheck<span class="text-[#00d4aa]">AI</span></span>
+                </div>
+
+                <div class="nav-tabs-desktop flex items-center gap-2">
+                    <button class="nav-tab active" data-tab="home">Overview</button>
+                    <button class="nav-tab" data-tab="algorithms">Algorithms</button>
+                    <button class="nav-tab" data-tab="improvements">Improvisations</button>
+                    <button class="nav-tab" data-tab="comparison">Comparison</button>
+                </div>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mobile-nav" id="mobileNav">
+            <button class="nav-tab active" data-tab="home">Overview</button>
+            <button class="nav-tab" data-tab="algorithms">Algorithms</button>
+            <button class="nav-tab" data-tab="improvements">Improvisations</button>
+            <button class="nav-tab" data-tab="comparison">Comparison</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-[72px]">
+        
+        <!-- Home Section -->
+        <section id="home" class="content-section active">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                
+                <!-- Hero -->
+                <div class="text-center mb-20 animate-in">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(0,212,170,0.1)] border border-[rgba(0,212,170,0.3)] text-sm text-[#00d4aa] mb-6">
+                        <span class="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse"></span>
+                        Algorithm Documentation v2.0
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                        Intelligent Verification<br>
+                        <span class="bg-gradient-to-r from-[#00d4aa] to-[#3b82f6] bg-clip-text text-transparent">Algorithm Suite</span>
+                    </h1>
+                    <p class="text-lg text-[#8b9cb8] max-w-2xl mx-auto">
+                        Explore the complete algorithmic foundation powering VeriCheck AI's advanced verification capabilities, including pseudocode, complexity analysis, and performance optimizations.
+                    </p>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 animate-in" style="transition-delay: 0.1s;">
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Core Algorithms</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">O(n)</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Avg Complexity</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">47%</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Faster Than Baseline</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">99.9%</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Accuracy Rate</div>
+                    </div>
+                </div>
+
+                <!-- Quick Access -->
+                <div class="mb-16 animate-in" style="transition-delay: 0.2s;">
+                    <h2 class="text-2xl font-semibold mb-6">Quick Access</h2>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="algo-card cursor-pointer" onclick="switchTab('algorithms')">
+                            <div class="algo-header">
+                                <div class="flex items-center justify-between w-full">
+                                    <div>
+                                        <h3 class="font-semibold text-lg">Algorithm Library</h3>
+                                        <p class="text-sm text-[#8b9cb8] mt-1">Complete pseudocode & analysis</p>
+                                    </div>
+                                    <svg class="w-6 h-6 text-[#00d4aa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="algo-card cursor-pointer" onclick="switchTab('improvements')">
+                            <div class="algo-header">
+                                <div class="flex items-center justify-between w-full">
+                                    <div>
+                                        <h3 class="font-semibold text-lg">Optimizations</h3>
+                                        <p class="text-sm text-[#8b9cb8] mt-1">Performance improvements</p>
+                                    </div>
+                                    <svg class="w-6 h-6 text-[#00d4aa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="algo-card cursor-pointer" onclick="switchTab('comparison')">
+                            <div class="algo-header">
+                                <div class="flex items-center justify-between w-full">
+                                    <div>
+                                        <h3 class="font-semibold text-lg">Benchmarks</h3>
+                                        <p class="text-sm text-[#8b9cb8] mt-1">Head-to-head comparison</p>
+                                    </div>
+                                    <svg class="w-6 h-6 text-[#00d4aa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Algorithm Preview -->
+                <div class="animate-in" style="transition-delay: 0.3s;">
+                    <h2 class="text-2xl font-semibold mb-6">Featured Algorithm</h2>
+                    <div class="algo-card">
+                        <div class="algo-header flex flex-wrap items-start justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-xl font-semibold">Adaptive Pattern Matcher (APM)</h3>
+                                    <span class="complexity-badge badge-onlogn">O(n log n)</span>
+                                </div>
+                                <p class="text-[#8b9cb8]">Core verification engine using adaptive pattern matching with dynamic threshold adjustment</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="improvement-tag">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    Optimized
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <div class="code-dot bg-red-500"></div>
+                                    <div class="code-dot bg-yellow-500"></div>
+                                    <div class="code-dot bg-green-500"></div>
+                                    <span class="ml-4 text-xs text-[#8b9cb8]">apm_algorithm.py</span>
+                                </div>
+                                <pre><code><span class="keyword">function</span> <span class="function">AdaptivePatternMatch</span>(<span class="variable">input_data</span>, <span class="variable">patterns</span>, <span class="variable">threshold</span> = <span class="number">0.85</span>):
+    <span class="comment">// Phase 1: Preprocessing & Indexing</span>
+    <span class="variable">indexed_patterns</span> = <span class="function">BuildInvertedIndex</span>(<span class="variable">patterns</span>)
+    <span class="variable">feature_vectors</span> = <span class="function">ExtractFeatures</span>(<span class="variable">input_data</span>)
+    
+    <span class="comment">// Phase 2: Candidate Selection</span>
+    <span class="variable">candidates</span> = []
+    <span class="keyword">for each</span> <span class="variable">feature</span> <span class="keyword">in</span> <span class="variable">feature_vectors</span>:
+        <span class="variable">matches</span> = <span class="function">LookupIndex</span>(<span class="variable">indexed_patterns</span>, <span class="variable">feature</span>)
+        <span class="variable">candidates</span>.<span class="function">extend</span>(<span class="variable">matches</span>)
+    
+    <span class="comment">// Phase 3: Adaptive Scoring</span>
+    <span class="variable">results</span> = []
+    <span class="keyword">for each</span> <span class="variable">candidate</span> <span class="keyword">in</span> <span class="function">Deduplicate</span>(<span class="variable">candidates</span>):
+        <span class="variable">score</span> = <span class="function">ComputeSimilarity</span>(<span class="variable">input_data</span>, <span class="variable">candidate</span>)
+        <span class="variable">adaptive_threshold</span> = <span class="function">AdjustThreshold</span>(
+            <span class="variable">threshold</span>,
+            <span class="variable">candidate.confidence_history</span>
+        )
+        <span class="keyword">if</span> <span class="variable">score</span> >= <span class="variable">adaptive_threshold</span>:
+            <span class="variable">results</span>.<span class="function">append</span>({<span class="string">pattern</span>: <span class="variable">candidate</span>, <span class="string">score</span>: <span class="variable">score</span>})
+    
+    <span class="keyword">return</span> <span class="function">RankByScore</span>(<span class="variable">results</span>)</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Algorithms Section -->
+        <section id="algorithms" class="content-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                
+                <div class="mb-12 animate-in">
+                    <h1 class="text-3xl sm:text-4xl font-bold mb-4">Algorithm Documentation</h1>
+                    <p class="text-[#8b9cb8] text-lg">Complete pseudocode specifications with time and space complexity analysis</p>
+                </div>
+
+                <!-- Algorithm List -->
+                <div class="space-y-8">
+                    
+                    <!-- Algorithm 1: Data Validation Engine -->
+                    <div class="algo-card animate-in" style="transition-delay: 0.1s;">
+                        <div class="algo-header">
+                            <div class="flex flex-wrap items-start justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                        <h3 class="text-xl font-semibold">1. Data Validation Engine (DVE)</h3>
+                                        <span class="complexity-badge badge-on">O(n)</span>
+                                        <span class="complexity-badge badge-o1">Space: O(1)</span>
+                                    </div>
+                                    <p class="text-[#8b9cb8]">Multi-layer input validation with schema compliance checking and anomaly detection</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <div class="code-dot bg-red-500"></div>
+                                    <div class="code-dot bg-yellow-500"></div>
+                                    <div class="code-dot bg-green-500"></div>
+                                    <span class="ml-4 text-xs text-[#8b9cb8]">data_validation_engine.py</span>
+                                </div>
+                                <pre><code><span class="comment">/**
+ * Data Validation Engine - Multi-layer validation system
+ * 
+ * Time Complexity: O(n) where n is number of fields
+ * Space Complexity: O(1) auxiliary space
+ * 
+ * @param {Object} data - Input data to validate
+ * @param {Object} schema - Validation schema definition
+ * @returns {Object} Validation result with errors and sanitized data
+ */</span>
+<span class="keyword">function</span> <span class="function">DataValidationEngine</span>(<span class="variable">data</span>, <span class="variable">schema</span>):
+    
+    <span class="comment">// Initialize result structure</span>
+    <span class="variable">result</span> = {
+        <span class="string">valid</span>: <span class="keyword">true</span>,
+        <span class="string">errors</span>: [],
+        <span class="string">sanitized</span>: {},
+        <span class="string">warnings</span>: [],
+        <span class="string">metadata</span>: {
+            <span class="string">fields_checked</span>: <span class="number">0</span>,
+            <span class="string">validation_time_ms</span>: <span class="number">0</span>
+        }
+    }
+    
+    <span class="variable">start_time</span> = <span class="function">GetCurrentTimestamp</span>()
+    
+    <span class="comment">// Layer 1: Structural Validation</span>
+    <span class="keyword">if</span> <span class="function">IsNull</span>(<span class="variable">data</span>) <span class="keyword">OR</span> <span class="function">IsNotObject</span>(<span class="variable">data</span>):
+        <span class="variable">result</span>.<span class="variable">errors</span>.<span class="function">push</span>({
+            <span class="string">code</span>: <span class="string">"INVALID_STRUCTURE"</span>,
+            <span class="string">message</span>: <span class="string">"Input must be a non-null object"</span>,
+            <span class="string">severity</span>: <span class="string">"CRITICAL"</span>
+        })
+        <span class="variable">result</span>.<span class="variable">valid</span> = <span class="keyword">false</span>
+        <span class="keyword">return</span> <span class="variable">result</span>
+    
+    <span class="comment">// Layer 2: Schema Compliance Check</span>
+    <span class="keyword">for each</span> (<span class="variable">field_name</span>, <span class="variable">field_schema</span>) <span class="keyword">in</span> <span class="variable">schema</span>.<span class="variable">fields</span>:
+        <span class="variable">result</span>.<span class="variable">metadata</span>.<span class="variable">fields_checked</span> += <span class="number">1</span>
+        <span class="variable">value</span> = <span class="variable">data</span>[<span class="variable">field_name</span>]
+        
+        <span class="comment">// Required field check</span>
+        <span class="keyword">if</span> <span class="variable">field_schema</span>.<span class="variable">required</span> <span class="keyword">AND</span> <span class="function">IsUndefined</span>(<span class="variable">value</span>):
+            <span class="variable">result</span>.<span class="variable">errors</span>.<span class="function">push</span>({
+                <span class="string">code</span>: <span class="string">"MISSING_REQUIRED"</span>,
+                <span class="string">field</span>: <span class="variable">field_name</span>,
+                <span class="string">severity</span>: <span class="string">"ERROR"</span>
+            })
+            <span class="variable">result</span>.<span class="variable">valid</span> = <span class="keyword">false</span>
+            <span class="keyword">continue</span>
+        
+        <span class="comment">// Type validation</span>
+        <span class="keyword">if</span> <span class="function">IsDefined</span>(<span class="variable">value</span>) <span class="keyword">AND NOT</span> <span class="function">ValidateType</span>(<span class="variable">value</span>, <span class="variable">field_schema</span>.<span class="variable">type</span>):
+            <span class="variable">result</span>.<span class="variable">errors</span>.<span class="function">push</span>({
+                <span class="string">code</span>: <span class="string">"TYPE_MISMATCH"</span>,
+                <span class="string">field</span>: <span class="variable">field_name</span>,
+                <span class="string">expected</span>: <span class="variable">field_schema</span>.<span class="variable">type</span>,
+                <span class="string">actual</span>: <span class="function">GetTypeOf</span>(<span class="variable">value</span>),
+                <span class="string">severity</span>: <span class="string">"ERROR"</span>
+            })
+            <span class="variable">result</span>.<span class="variable">valid</span> = <span class="keyword">false</span>
+        
+        <span class="comment">// Format validation (regex/pattern)</span>
+        <span class="keyword">if</span> <span class="variable">field_schema</span>.<span class="variable">pattern</span> <span class="keyword">AND</span> <span class="function">IsString</span>(<span class="variable">value</span>):
+            <span class="keyword">if NOT</span> <span class="function">MatchesPattern</span>(<span class="variable">value</span>, <span class="variable">field_schema</span>.<span class="variable">pattern</span>):
+                <span class="variable">result</span>.<span class="variable">errors</span>.<span class="function">push</span>({
+                    <span class="string">code</span>: <span class="string">"FORMAT_INVALID"</span>,
+                    <span class="string">field</span>: <span class="variable">field_name</span>,
+                    <span class="string">severity</span>: <span class="string">"ERROR"</span>
+                })
+                <span class="variable">result</span>.<span class="variable">valid</span> = <span class="keyword">false</span>
+        
+        <span class="comment">// Range/Constraint validation</span>
+        <span class="keyword">if</span> <span class="variable">field_schema</span>.<span class="variable">constraints</span>:
+            <span class="variable">constraint_result</span> = <span class="function">CheckConstraints</span>(
+                <span class="variable">value</span>, 
+                <span class="variable">field_schema</span>.<span class="variable">constraints</span>
+            )
+            <span class="keyword">if NOT</span> <span class="variable">constraint_result</span>.<span class="variable">passed</span>:
+                <span class="variable">result</span>.<span class="variable">errors</span>.<span class="function">push</span>(...<span class="variable">constraint_result</span>.<span class="variable">violations</span>)
+                <span class="variable">result</span>.<span class="variable">valid</span> = <span class="keyword">false</span>
+        
+        <span class="comment">// Sanitize value for output</span>
+        <span class="variable">result</span>.<span class="variable">sanitized</span>[<span class="variable">field_name</span>] = <span class="function">SanitizeValue</span>(
+            <span class="variable">value</span>, 
+            <span class="variable">field_schema</span>.<span class="variable">sanitization_rules</span>
+        )
+    
+    <span class="comment">// Layer 3: Cross-field Validation</span>
+    <span class="keyword">for each</span> <span class="variable">rule</span> <span class="keyword">in</span> <span class="variable">schema</span>.<span class="variable">cross_field_rules</span>:
+        <span class="variable">validation</span> = <span class="function">EvaluateRule</span>(<span class="variable">rule</span>, <span class="variable">data</span>)
+        <span class="keyword">if NOT</span> <span class="variable">validation</span>.<span class="variable">valid</span>:
+            <span class="variable">result</span>.<span class="variable">errors</span>.<span class="function">push</span>({
+                <span class="string">code</span>: <span class="string">"CROSS_FIELD_VIOLATION"</span>,
+                <span class="string">rule</span>: <span class="variable">rule</span>.<span class="variable">name</span>,
+                <span class="string">details</span>: <span class="variable">validation</span>.<span class="variable">message</span>
+            })
+            <span class="variable">result</span>.<span class="variable">valid</span> = <span class="keyword">false</span>
+    
+    <span class="comment">// Layer 4: Anomaly Detection</span>
+    <span class="variable">anomalies</span> = <span class="function">DetectAnomalies</span>(<span class="variable">data</span>, <span class="variable">schema</span>.<span class="variable">anomaly_config</span>)
+    <span class="keyword">for each</span> <span class="variable">anomaly</span> <span class="keyword">in</span> <span class="variable">anomalies</span>:
+        <span class="variable">result</span>.<span class="variable">warnings</span>.<span class="function">push</span>({
+            <span class="string">type</span>: <span class="string">"ANOMALY"</span>,
+            <span class="string">field</span>: <span class="variable">anomaly</span>.<span class="variable">field</span>,
+            <span class="string">score</span>: <span class="variable">anomaly</span>.<span class="variable">confidence_score</span>,
+            <span class="string">description</span>: <span class="variable">anomaly</span>.<span class="variable">reason</span>
+        })
+    
+    <span class="variable">result</span>.<span class="variable">metadata</span>.<span class="variable">validation_time_ms</span> = <span class="function">GetCurrentTimestamp</span>() - <span class="variable">start_time</span>
+    
+    <span class="keyword">return</span> <span class="variable">result</span></code></pre>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-4 p-4 bg-[rgba(0,212,170,0.05)] rounded-lg border border-[rgba(0,212,170,0.2)]">
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Time Complexity</span>
+                                    <p class="font-mono font-semibold text-[#00d4aa]">O(n)</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Space Complexity</span>
+                                    <p class="font-mono font-semibold text-[#3b82f6]">O(1)</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Best Case</span>
+                                    <p class="font-mono font-semibold text-[#7ee787]">O(1) - early exit on critical error</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Worst Case</span>
+                                    <p class="font-mono font-semibold text-[#f59e0b]">O(n * m) - m cross-field rules</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Algorithm 2: Pattern Recognition Core -->
+                    <div class="algo-card animate-in" style="transition-delay: 0.2s;">
+                        <div class="algo-header">
+                            <div class="flex flex-wrap items-start justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                        <h3 class="text-xl font-semibold">2. Pattern Recognition Core (PRC)</h3>
+                                        <span class="complexity-badge badge-onlogn">O(n log n)</span>
+                                        <span class="complexity-badge badge-on">Space: O(n)</span>
+                                    </div>
+                                    <p class="text-[#8b9cb8]">Advanced pattern matching using suffix arrays and LCP computation for efficient substring detection</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <div class="code-dot bg-red-500"></div>
+                                    <div class="code-dot bg-yellow-500"></div>
+                                    <div class="code-dot bg-green-500"></div>
+                                    <span class="ml-4 text-xs text-[#8b9cb8]">pattern_recognition_core.py</span>
+                                </div>
+                                <pre><code><span class="comment">/**
+ * Pattern Recognition Core - Suffix Array Based Matching
+ * 
+ * Time Complexity: O(n log n) for preprocessing
+ *                   O(m log n) per query (m = pattern length)
+ * Space Complexity: O(n) for suffix array storage
+ */</span>
+<span class="keyword">class</span> <span class="type">PatternRecognitionCore</span>:
+    
+    <span class="variable">suffix_array</span> = <span class="keyword">null</span>
+    <span class="variable">lcp_array</span> = <span class="keyword">null</span>
+    <span class="variable">rank_table</span> = <span class="keyword">null</span>
+    <span class="variable">text</span> = <span class="string">""</span>
+    <span class="variable">is_initialized</span> = <span class="keyword">false</span>
+    
+    <span class="comment">/**
+     * Initialize the PRC with input text
+     * Builds suffix array and LCP array in O(n log n)
+     */</span>
+    <span class="keyword">function</span> <span class="function">Initialize</span>(<span class="variable">input_text</span>):
+        <span class="variable">self</span>.<span class="variable">text</span> = <span class="variable">input_text</span> + <span class="string">"$"</span>  <span class="comment">// Sentinel character</span>
+        <span class="variable">n</span> = <span class="function">Length</span>(<span class="variable">self</span>.<span class="variable">text</span>)
+        
+        <span class="comment">// Build initial ranks (character-based)</span>
+        <span class="variable">self</span>.<span class="variable">rank_table</span> = [<span class="number">0</span>] * <span class="variable">n</span>
+        <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">from</span> <span class="number">0</span> <span class="keyword">to</span> <span class="variable">n</span>-<span class="number">1</span>:
+            <span class="variable">self</span>.<span class="variable">rank_table</span>[<span class="variable">i</span>] = <span class="function">Ord</span>(<span class="variable">self</span>.<span class="variable">text</span>[<span class="variable">i</span>])
+        
+        <span class="comment">// Build suffix array using prefix doubling</span>
+        <span class="variable">tmp_rank</span> = [<span class="number">0</span>] * <span class="variable">n</span>
+        <span class="variable">sa</span> = <span class="function">Range</span>(<span class="number">0</span>, <span class="variable">n</span>)
+        <span class="variable">k</span> = <span class="number">1</span>
+        
+        <span class="keyword">while</span> <span class="variable">k</span> < <span class="variable">n</span>:
+            <span class="comment">// Sort by (rank[i], rank[i+k]) pairs</span>
+            <span class="variable">sa</span> = <span class="function">SortWithKey</span>(<span class="variable">sa</span>, <span class="keyword">lambda</span> <span class="variable">i</span>: (
+                <span class="variable">self</span>.<span class="variable">rank_table</span>[<span class="variable">i</span>],
+                <span class="variable">self</span>.<span class="variable">rank_table</span>[<span class="variable">i</span>+<span class="variable">k</span>] <span class="keyword">if</span> <span class="variable">i</span>+<span class="variable">k</span> < <span class="variable">n</span> <span class="keyword">else</span> -<span class="number">1</span>
+            ))
+            
+            <span class="comment">// Recompute ranks</span>
+            <span class="variable">tmp_rank</span>[<span class="variable">sa</span>[<span class="number">0</span>]] = <span class="number">0</span>
+            <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">from</span> <span class="number">1</span> <span class="keyword">to</span> <span class="variable">n</span>-<span class="number">1</span>:
+                <span class="variable">prev</span>, <span class="variable">curr</span> = <span class="variable">sa</span>[<span class="variable">i</span>-<span class="number">1</span>], <span class="variable">sa</span>[<span class="variable">i</span>]
+                <span class="variable">prev_pair</span> = (
+                    <span class="variable">self</span>.<span class="variable">rank_table</span>[<span class="variable">prev</span>],
+                    <span class="variable">self</span>.<span class="variable">rank_table</span>[<span class="variable">prev</span>+<span class="variable">k</span>] <span class="keyword">if</span> <span class="variable">prev</span>+<span class="variable">k</span> < <span class="variable">n</span> <span class="keyword">else</span> -<span class="number">1</span>
+                )
+                <span class="variable">curr_pair</span> = (
+                    <span class="variable">self</span>.<span class="variable">rank_table</span>[<span class="variable">curr</span>],
+                    <span class="variable">self</span>.<span class="variable">rank_table</span>[<span class="variable">curr</span>+<span class="variable">k</span>] <span class="keyword">if</span> <span class="variable">curr</span>+<span class="variable">k</span> < <span class="variable">n</span> <span class="keyword">else</span> -<span class="number">1</span>
+                )
+                <span class="variable">tmp_rank</span>[<span class="variable">curr</span>] = <span class="variable">tmp_rank</span>[<span class="variable">prev</span>] + (<span class="number">1</span> <span class="keyword">if</span> <span class="variable">prev_pair</span> != <span class="variable">curr_pair</span> <span class="keyword">else</span> <span class="number">0</span>)
+            
+            <span class="variable">self</span>.<span class="variable">rank_table</span> = <span class="variable">tmp_rank</span>[<span class="keyword">:</span>]
+            <span class="variable">k</span> *= <span class="number">2</span>
+        
+        <span class="variable">self</span>.<span class="variable">suffix_array</span> = <span class="variable">sa</span>
+        
+        <span class="comment">// Build LCP array using Kasai's algorithm</span>
+        <span class="variable">self</span>.<span class="function">BuildLCPArray</span>()
+        <span class="variable">self</span>.<span class="variable">is_initialized</span> = <span class="keyword">true</span>
+    
+    <span class="comment">/**
+     * Search for pattern occurrences using binary search on SA
+     * Time: O(m log n)
+     */</span>
+    <span class="keyword">function</span> <span class="function">Search</span>(<span class="variable">pattern</span>):
+        <span class="keyword">if NOT</span> <span class="variable">self</span>.<span class="variable">is_initialized</span>:
+            <span class="keyword">raise</span> <span class="string">"PRC not initialized"</span>
+        
+        <span class="variable">m</span> = <span class="function">Length</span>(<span class="variable">pattern</span>)
+        <span class="variable">n</span> = <span class="function">Length</span>(<span class="variable">self</span>.<span class="variable">text</span>)
+        
+        <span class="comment">// Binary search for lower bound</span>
+        <span class="variable">lo</span> = <span class="number">0</span>
+        <span class="variable">hi</span> = <span class="variable">n</span> - <span class="number">1</span>
+        <span class="variable">lower</span> = -<span class="number">1</span>
+        
+        <span class="keyword">while</span> <span class="variable">lo</span> <= <span class="variable">hi</span>:
+            <span class="variable">mid</span> = (<span class="variable">lo</span> + <span class="variable">hi</span>) // <span class="number">2</span>
+            <span class="variable">suffix</span> = <span class="variable">self</span>.<span class="variable">text</span>[<span class="variable">self</span>.<span class="variable">suffix_array</span>[<span class="variable">mid</span>] <span class="keyword">:</span>]
+            <span class="variable">compare</span> = <span class="function">StringCompare</span>(<span class="variable">pattern</span>, <span class="variable">suffix</span>[<span class="keyword">:</span><span class="variable">m</span>])
+            
+            <span class="keyword">if</span> <span class="variable">compare</span> <= <span class="number">0</span>:
+                <span class="variable">lower</span> = <span class="variable">mid</span>
+                <span class="variable">hi</span> = <span class="variable">mid</span> - <span class="number">1</span>
+            <span class="keyword">else</span>:
+                <span class="variable">lo</span> = <span class="variable">mid</span> + <span class="number">1</span>
+        
+        <span class="keyword">if</span> <span class="variable">lower</span> == -<span class="number">1</span>:
+            <span class="keyword">return</span> {<span class="string">found</span>: <span class="keyword">false</span>, <span class="string">occurrences</span>: []}
+        
+        <span class="comment">// Binary search for upper bound</span>
+        <span class="variable">lo</span> = <span class="variable">lower</span>
+        <span class="variable">hi</span> = <span class="variable">n</span> - <span class="number">1</span>
+        <span class="variable">upper</span> = <span class="variable">lower</span>
+        
+        <span class="keyword">while</span> <span class="variable">lo</span> <= <span class="variable">hi</span>:
+            <span class="variable">mid</span> = (<span class="variable">lo</span> + <span class="variable">hi</span>) // <span class="number">2</span>
+            <span class="variable">suffix</span> = <span class="variable">self</span>.<span class="variable">text</span>[<span class="variable">self</span>.<span class="variable">suffix_array</span>[<span class="variable">mid</span>] <span class="keyword">:</span>]
+            <span class="variable">compare</span> = <span class="function">StringCompare</span>(<span class="variable">pattern</span>, <span class="variable">suffix</span>[<span class="keyword">:</span><span class="variable">m</span>])
+            
+            <span class="keyword">if</span> <span class="variable">compare</span> == <span class="number">0</span>:
+                <span class="variable">upper</span> = <span class="variable">mid</span>
+                <span class="variable">lo</span> = <span class="variable">mid</span> + <span class="number">1</span>
+            <span class="keyword">else</span>:
+                <span class="variable">hi</span> = <span class="variable">mid</span> - <span class="number">1</span>
+        
+        <span class="comment">// Collect all occurrences</span>
+        <span class="variable">occurrences</span> = []
+        <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">from</span> <span class="variable">lower</span> <span class="keyword">to</span> <span class="variable">upper</span>:
+            <span class="variable">pos</span> = <span class="variable">self</span>.<span class="variable">suffix_array</span>[<span class="variable">i</span>]
+            <span class="variable">occurrences</span>.<span class="function">append</span>({
+                <span class="string">position</span>: <span class="variable">pos</span>,
+                <span class="string">context</span>: <span class="variable">self</span>.<span class="function">GetContext</span>(<span class="variable">pos</span>, <span class="variable">m</span>),
+                <span class="string">lcp_with_prev</span>: <span class="variable">self</span>.<span class="variable">lcp_array</span>[<span class="variable">i</span>] <span class="keyword">if</span> <span class="variable">i</span> > <span class="number">0</span> <span class="keyword">else</span> <span class="number">0</span>
+            })
+        
+        <span class="keyword">return</span> {
+            <span class="string">found</span>: <span class="keyword">true</span>,
+            <span class="string">count</span>: <span class="function">Length</span>(<span class="variable">occurrences</span>),
+            <span class="string">occurrences</span>: <span class="variable">occurrences</span>
+        }</code></pre>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-4 p-4 bg-[rgba(59,130,246,0.05)] rounded-lg border border-[rgba(59,130,246,0.2)]">
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Preprocessing</span>
+                                    <p class="font-mono font-semibold text-[#3b82f6]">O(n log n)</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Query Time</span>
+                                    <p class="font-mono font-semibold text-[#00d4aa]">O(m log n)</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Space Usage</span>
+                                    <p class="font-mono font-semibold text-[#a855f7]">O(n)</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Use Case</span>
+                                    <p class="font-mono font-semibold text-[#f59e0b]">Large text corpus search</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Algorithm 3: Confidence Scorer -->
+                    <div class="algo-card animate-in" style="transition-delay: 0.3s;">
+                        <div class="algo-header">
+                            <div class="flex flex-wrap items-start justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                        <h3 class="text-xl font-semibold">3. Bayesian Confidence Scorer (BCS)</h3>
+                                        <span class="complexity-badge badge-o1">O(k)</span>
+                                        <span class="complexity-badge badge-o1">Space: O(1)</span>
+                                    </div>
+                                    <p class="text-[#8b9cb8]">Probabilistic confidence estimation using Bayesian inference with prior knowledge integration</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <div class="code-dot bg-red-500"></div>
+                                    <div class="code-dot bg-yellow-500"></div>
+                                    <div class="code-dot bg-green-500"></div>
+                                    <span class="ml-4 text-xs text-[#8b9cb8]">bayesian_confidence_scorer.py</span>
+                                </div>
+                                <pre><code><span class="comment">/**
+ * Bayesian Confidence Scorer
+ * 
+ * Computes confidence scores using Bayes' theorem with configurable priors
+ * Time Complexity: O(k) where k is number of evidence factors
+ * Space Complexity: O(1) - constant memory usage
+ */</span>
+<span class="keyword">class</span> <span class="type">BayesianConfidenceScorer</span>:
+    
+    <span class="variable">prior_probabilities</span> = {}
+    <span class="variable">evidence_weights</span> = {}
+    <span class="variable">smoothing_factor</span> = <span class="number">0.001</span>  <span class="comment">// Laplace smoothing</span>
+    
+    <span class="comment">/**
+     * Configure prior probabilities for hypothesis classes
+     */</span>
+    <span class="keyword">function</span> <span class="function">ConfigurePriors</span>(<span class="variable">priors</span>):
+        <span class="variable">total</span> = <span class="number">0</span>
+        <span class="keyword">for</span> <span class="variable">class_name</span>, <span class="variable">prob</span> <span class="keyword">in</span> <span class="variable">priors</span>:
+            <span class="variable">total</span> += <span class="variable">prob</span>
+        
+        <span class="comment">// Normalize to ensure valid probability distribution</span>
+        <span class="keyword">for</span> <span class="variable">class_name</span>, <span class="variable">prob</span> <span class="keyword">in</span> <span class="variable">priors</span>:
+            <span class="variable">self</span>.<span class="variable">prior_probabilities</span>[<span class="variable">class_name</span>] = <span class="variable">prob</span> / <span class="variable">total</span>
+    
+    <span class="comment">/**
+     * Set weights for different evidence types
+     */</span>
+    <span class="keyword">function</span> <span class="function">SetEvidenceWeights</span>(<span class="variable">weights</span>):
+        <span class="variable">self</span>.<span class="variable">evidence_weights</span> = <span class="variable">weights</span>
+    
+    <span class="comment">/**
+     * Calculate posterior probability using Bayes' theorem
+     * P(H|E) = P(E|H) * P(H) / P(E)
+     */</span>
+    <span class="keyword">function</span> <span class="function">CalculateConfidence</span>(<span class="variable">hypothesis</span>, <span class="variable">evidence_set</span>):
+        
+        <span class="comment">// Step 1: Get prior probability</span>
+        <span class="variable">prior</span> = <span class="variable">self</span>.<span class="variable">prior_probabilities</span>.<span class="function">get</span>(<span class="variable">hypothesis</span>.<span class="variable">class</span>, <span class="number">0.5</span>)
+        
+        <span class="comment">// Step 2: Compute likelihood P(E|H)</span>
+        <span class="variable">likelihood</span> = <span class="number">1.0</span>
+        <span class="keyword">for each</span> <span class="variable">evidence</span> <span class="keyword">in</span> <span class="variable">evidence_set</span>:
+            <span class="variable">weight</span> = <span class="variable">self</span>.<span class="variable">evidence_weights</span>.<span class="function">get</span>(<span class="variable">evidence</span>.<span class="variable">type</span>, <span class="number">1.0</span>)
+            <span class="variable">conditional_prob</span> = <span class="variable">self</span>.<span class="function">GetConditionalProbability</span>(
+                <span class="variable">evidence</span>, 
+                <span class="variable">hypothesis</span>
+            )
+            <span class="comment">// Weighted product of likelihoods</span>
+            <span class="variable">likelihood</span> *= <span class="function">Pow</span>(<span class="variable">conditional_prob</span>, <span class="variable">weight</span>)
+        
+        <span class="comment">// Step 3: Compute marginal likelihood P(E) (normalization constant)</span>
+        <span class="variable">marginal_likelihood</span> = <span class="number">0.0</span>
+        <span class="keyword">for each</span> <span class="variable">possible_class</span> <span class="keyword">in</span> <span class="variable">self</span>.<span class="variable">prior_probabilities</span>:
+            <span class="variable">class_prior</span> = <span class="variable">self</span>.<span class="variable">prior_probabilities</span>[<span class="variable">possible_class</span>]
+            <span class="variable">class_likelihood</span> = <span class="number">1.0</span>
+            <span class="keyword">for each</span> <span class="variable">evidence</span> <span class="keyword">in</span> <span class="variable">evidence_set</span>:
+                <span class="variable">weight</span> = <span class="variable">self</span>.<span class="variable">evidence_weights</span>.<span class="function">get</span>(<span class="variable">evidence</span>.<span class="variable">type</span>, <span class="number">1.0</span>)
+                <span class="variable">temp_hypothesis</span> = {<span class="string">class</span>: <span class="variable">possible_class</span>}
+                <span class="variable">cond_p</span> = <span class="variable">self</span>.<span class="function">GetConditionalProbability</span>(<span class="variable">evidence</span>, <span class="variable">temp_hypothesis</span>)
+                <span class="variable">class_likelihood</span> *= <span class="function">Pow</span>(<span class="variable">cond_p</span>, <span class="variable">weight</span>)
+            <span class="variable">marginal_likelihood</span> += <span class="variable">class_prior</span> * <span class="variable">class_likelihood</span>
+        
+        <span class="comment">// Apply Laplace smoothing to avoid division by zero</span>
+        <span class="variable">marginal_likelihood</span> = <span class="function">Max</span>(<span class="variable">marginal_likelihood</span>, <span class="variable">self</span>.<span class="variable">smoothing_factor</span>)
+        
+        <span class="comment">// Step 4: Apply Bayes' theorem</span>
+        <span class="variable">posterior</span> = (<span class="variable">likelihood</span> * <span class="variable">prior</span>) / <span class="variable">marginal_likelihood</span>
+        
+        <span class="comment">// Step 5: Apply confidence calibration curve</span>
+        <span class="variable">calibrated_score</span> = <span class="variable">self</span>.<span class="function">ApplyCalibration</span>(<span class="variable">posterior</span>)
+        
+        <span class="keyword">return</span> {
+            <span class="string">raw_posterior</span>: <span class="variable">posterior</span>,
+            <span class="string">calibrated_confidence</span>: <span class="variable">calibrated_score</span>,
+            <span class="string">confidence_level</span>: <span class="variable">self</span>.<span class="function">ClassifyConfidenceLevel</span>(<span class="variable">calibrated_score</span>),
+            <span class="string">supporting_evidence_count</span>: <span class="function">Length</span>(<span class="variable">evidence_set</span>),
+            <span class="string">uncertainty_margin</span>: <span class="variable">self</span>.<span class="function">CalculateUncertainty</span>(<span class="variable">calibrated_score</span>)
+        }
+    
+    <span class="comment">/**
+     * Get conditional probability P(E|H) from lookup table or model
+     */</span>
+    <span class="keyword">function</span> <span class="function">GetConditionalProbability</span>(<span class="variable">evidence</span>, <span class="variable">hypothesis</span>):
+        <span class="comment">// Check cached probabilities first</span>
+        <span class="variable">cache_key</span> = <span class="function">Hash</span>({<span class="variable">evidence</span>.<span class="variable">type</span>, <span class="variable">evidence</span>.<span class="variable">value</span>, <span class="variable">hypothesis</span>.<span class="variable">class</span>})
+        
+        <span class="keyword">if</span> <span class="variable">cache_key</span> <span class="keyword">in</span> <span class="variable">probability_cache</span>:
+            <span class="keyword">return</span> <span class="variable">probability_cache</span>[<span class="variable">cache_key</span>]
+        
+        <span class="comment">// Compute from statistical model</span>
+        <span class="variable">base_rate</span> = <span class="variable">self</span>.<span class="function">GetBaseRate</span>(<span class="variable">evidence</span>.<span class="variable">type</span>, <span class="variable">hypothesis</span>.<span class="variable">class</span>)
+        <span class="variable">adjustment</span> = <span class="variable">self</span>.<span class="function">ComputeEvidenceAdjustment</span>(<span class="variable">evidence</span>)
+        <span class="variable">probability</span> = <span class="function">Sigmoid</span>(<span class="variable">base_rate</span> + <span class="variable">adjustment</span>)
+        
+        <span class="comment">// Cache result</span>
+        <span class="variable">probability_cache</span>[<span class="variable">cache_key</span>] = <span class="variable">probability</span>
+        
+        <span class="keyword">return</span> <span class="variable">probability</span>
+    
+    <span class="comment">/**
+     * Classify confidence into human-readable levels
+     */</span>
+    <span class="keyword">function</span> <span class="function">ClassifyConfidenceLevel</span>(<span class="variable">score</span>):
+        <span class="keyword">if</span> <span class="variable">score</span> >= <span class="number">0.95</span>:
+            <span class="keyword">return</span> {<span class="string">level</span>: <span class="string">"VERY_HIGH"</span>, <span class="string">label</span>: <span class="string">"Very High Confidence"</span>, <span class="string">color</span>: <span class="string">"#00d4aa"</span>}
+        <span class="keyword">elif</span> <span class="variable">score</span> >= <span class="number">0.80</span>:
+            <span class="keyword">return</span> {<span class="string">level</span>: <span class="string">"HIGH"</span>, <span class="string">label</span>: <span class="string">"High Confidence"</span>, <span class="string">color</span>: <span class="string">"#3b82f6"</span>}
+        <span class="keyword">elif</span> <span class="variable">score</span> >= <span class="number">0.60</span>:
+            <span class="keyword">return</span> {<span class="string">level</span>: <span class="string">"MEDIUM"</span>, <span class="string">label</span>: <span class="string">"Medium Confidence"</span>, <span class="string">color</span>: <span class="string">"#f59e0b"</span>}
+        <span class="keyword">elif</span> <span class="variable">score</span> >= <span class="number">0.40</span>:
+            <span class="keyword">return</span> {<span class="string">level</span>: <span class="string">"LOW"</span>, <span class="string">label</span>: <span class="string">"Low Confidence"</span>, <span class="string">color</span>: <span class="string">"#ef4444"</span>}
+        <span class="keyword">else</span>:
+            <span class="keyword">return</span> {<span class="string">level</span>: <span class="string">"VERY_LOW"</span>, <span class="string">label</span>: <span class="string">"Very Low Confidence"</span>, <span class="string">color</span>: <span class="string">"#6b7280"</span>}</code></pre>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-4 p-4 bg-[rgba(168,85,247,0.05)] rounded-lg border border-[rgba(168,85,247,0.2)]">
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Time Complexity</span>
+                                    <p class="font-mono font-semibold text-[#a855f7]">O(k) - k evidence factors</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Space Complexity</span>
+                                    <p class="font-mono font-semibold text-[#00d4aa]">O(1) - constant</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Accuracy</span>
+                                    <p class="font-mono font-semibold text-[#3b82f6]">94.7% calibrated</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Method</span>
+                                    <p class="font-mono font-semibold text-[#f59e0b]">Bayesian Inference</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Algorithm 4: Fuzzy String Matcher -->
+                    <div class="algo-card animate-in" style="transition-delay: 0.4s;">
+                        <div class="algo-header">
+                            <div class="flex flex-wrap items-start justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                        <h3 class="text-xl font-semibold">4. Fuzzy String Matcher (FSM)</h3>
+                                        <span class="complexity-badge badge-onsquare">O(mn)</span>
+                                        <span class="complexity-badge badge-on">Space: O(min(m,n))</span>
+                                    </div>
+                                    <p class="text-[#8b9cb8]">Levenshtein distance-based fuzzy matching with weighted edit operations and early termination</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <div class="code-dot bg-red-500"></div>
+                                    <div class="code-dot bg-yellow-500"></div>
+                                    <div class="code-dot bg-green-500"></div>
+                                    <span class="ml-4 text-xs text-[#8b9cb8]">fuzzy_string_matcher.py</span>
+                                </div>
+                                <pre><code><span class="comment">/**
+ * Fuzzy String Matcher - Optimized Levenshtein Distance
+ * 
+ * Uses Wagner-Fischer algorithm with optimizations:
+ * - Early termination when distance exceeds threshold
+ * - Space optimization using only two rows
+ * - Weighted edit costs (substitution cheaper than insert/delete)
+ * 
+ * Time Complexity: O(m*n) worst case, O(min(m,n)*k) with threshold k
+ * Space Complexity: O(min(m,n)) optimized
+ */</span>
+<span class="keyword">function</span> <span class="function">FuzzyStringMatch</span>(<span class="variable">source</span>, <span class="variable">target</span>, <span class="variable">options</span> = {}):
+    
+    <span class="comment">// Default configuration</span>
+    <span class="variable">config</span> = {
+        <span class="string">case_sensitive</span>: <span class="keyword">false</span>,
+        <span class="string">threshold</span>: <span class="number">0.7</span>,           <span class="comment">// Minimum similarity score</span>
+        <span class="string">max_distance</span>: <span class="keyword">null</span>,       <span class="comment">// Max edit distance allowed</span>
+        <span class="string">insertion_cost</span>: <span class="number">1.0</span>,
+        <span class="string">deletion_cost</span>: <span class="number">1.0</span>,
+        <span class="string">substitution_cost</span>: <span class="number">1.0</span>,
+        <span class="string">transposition_cost</span>: <span class="number">0.5</span>,   <span class="comment">// Damerau-Levenshtein extension</span>
+        ...<span class="variable">options</span>
+    }
+    
+    <span class="comment">// Preprocess strings</span>
+    <span class="keyword">if NOT</span> <span class="variable">config</span>.<span class="variable">case_sensitive</span>:
+        <span class="variable">s</span> = <span class="function">ToLower</span>(<span class="variable">source</span>)
+        <span class="variable">t</span> = <span class="function">ToLower</span>(<span class="variable">target</span>)
+    <span class="keyword">else</span>:
+        <span class="variable">s</span> = <span class="variable">source</span>
+        <span class="variable">t</span> = <span class="variable">target</span>
+    
+    <span class="variable">m</span> = <span class="function">Length</span>(<span class="variable">s</span>)
+    <span class="variable">n</span> = <span class="function">Length</span>(<span class="variable">t</span>)
+    
+    <span class="comment">// Quick rejection checks</span>
+    <span class="keyword">if</span> <span class="variable">m</span> == <span class="number">0</span> <span class="keyword">OR</span> <span class="variable">n</span> == <span class="number">0</span>:
+        <span class="variable">distance</span> = <span class="function">Max</span>(<span class="variable">m</span>, <span class="variable">n</span>)
+        <span class="keyword">return</span> <span class="variable">self</span>.<span class="function">FormatResult</span>(<span class="variable">distance</span>, <span class="variable">m</span>, <span class="variable">n</span>)
+    
+    <span class="comment">// Length-based quick filter</span>
+    <span class="variable">len_diff</span> = <span class="function">Abs</span>(<span class="variable">m</span> - <span class="variable">n</span>)
+    <span class="variable">max_len</span> = <span class="function">Max</span>(<span class="variable">m</span>, <span class="variable">n</span>)
+    
+    <span class="keyword">if</span> <span class="variable">config</span>.<span class="variable">max_distance</span> <span class="keyword">AND</span> <span class="variable">len_diff</span> > <span class="variable">config</span>.<span class="variable">max_distance</span>:
+        <span class="keyword">return</span> {<span class="string">match</span>: <span class="keyword">false</span>, <span class="string">similarity</span>: <span class="number">0</span>, <span class="string">distance</span>: <span class="variable">len_diff</span>}
+    
+    <span class="comment">// Ensure s is shorter for space optimization</span>
+    <span class="keyword">if</span> <span class="variable">m</span> > <span class="variable">n</span>:
+        <span class="variable">s</span>, <span class="variable">t</span> = <span class="variable">t</span>, <span class="variable">s</span>
+        <span class="variable">m</span>, <span class="variable">n</span> = <span class="variable">n</span>, <span class="variable">m</span>
+    
+    <span class="comment">// Initialize previous row (only need two rows)</span>
+    <span class="variable">prev_row</span> = <span class="function">Range</span>(<span class="number">0</span>, <span class="variable">m</span> + <span class="number">1</span>)
+    <span class="variable">curr_row</span> = [<span class="number">0</span>] * (<span class="variable">m</span> + <span class="number">1</span>)
+    
+    <span class="comment">// Track minimum value in row for early termination</span>
+    <span class="variable">min_possible</span> = <span class="variable">config</span>.<span class="variable">max_distance</span> <span class="keyword">OR</span> <span class="function">Infinity</span>()
+    
+    <span class="comment">// Fill DP table row by row</span>
+    <span class="keyword">for</span> <span class="variable">j</span> <span class="keyword">from</span> <span class="number">1</span> <span class="keyword">to</span> <span class="variable">n</span>:
+        <span class="variable">curr_row</span>[<span class="number">0</span>] = <span class="variable">j</span>
+        <span class="variable">row_min</span> = <span class="variable">j</span>
+        
+        <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">from</span> <span class="number">1</span> <span class="keyword">to</span> <span class="variable">m</span>:
+            
+            <span class="comment">// Cost for substitution (0 if characters match)</span>
+            <span class="keyword">if</span> <span class="variable">s</span>[<span class="variable">i</span>-<span class="number">1</span>] == <span class="variable">t</span>[<span class="variable">j</span>-<span class="number">1</span>]:
+                <span class="variable">substitution_cost</span> = <span class="number">0</span>
+            <span class="keyword">else</span>:
+                <span class="variable">substitution_cost</span> = <span class="variable">config</span>.<span class="variable">substitution_cost</span>
+            
+            <span class="comment">// Compute three operations</span>
+            <span class="variable">delete_cost</span> = <span class="variable">prev_row</span>[<span class="variable">i</span>] + <span class="variable">config</span>.<span class="variable">deletion_cost</span>
+            <span class="variable">insert_cost</span> = <span class="variable">curr_row</span>[<span class="variable">i</span>-<span class="number">1</span>] + <span class="variable">config</span>.<span class="variable">insertion_cost</span>
+            <span class="variable">replace_cost</span> = <span class="variable">prev_row</span>[<span class="variable">i</span>-<span class="number">1</span>] + <span class="variable">substitution_cost</span>
+            
+            <span class="comment">// Take minimum</span>
+            <span class="variable">curr_row</span>[<span class="variable">i</span>] = <span class="function">Min</span>(<span class="variable">delete_cost</span>, <span class="variable">insert_cost</span>, <span class="variable">replace_cost</span>)
+            
+            <span class="comment">// Damerau-Levenshtein: check transposition</span>
+            <span class="keyword">if</span> <span class="variable">j</span> > <span class="number">1</span> <span class="keyword">AND</span> <span class="variable">i</span> > <span class="number">1</span> <span class="keyword">AND</span> \
+               <span class="variable">s</span>[<span class="variable">i</span>-<span class="number">1</span>] == <span class="variable">t</span>[<span class="variable">j</span>-<span class="number">2</span>] <span class="keyword">AND</span> <span class="variable">s</span>[<span class="variable">i</span>-<span class="number">2</span>] == <span class="variable">t</span>[<span class="variable">j</span>-<span class="number">1</span>]:
+                <span class="variable">transpose_cost</span> = <span class="variable">prev_prev_row</span>[<span class="variable">i</span>-<span class="number">2</span>] + <span class="variable">config</span>.<span class="variable">transposition_cost</span>
+                <span class="variable">curr_row</span>[<span class="variable">i</span>] = <span class="function">Min</span>(<span class="variable">curr_row</span>[<span class="variable">i</span>], <span class="variable">transpose_cost</span>)
+            
+            <span class="variable">row_min</span> = <span class="function">Min</span>(<span class="variable">row_min</span>, <span class="variable">curr_row</span>[<span class="variable">i</span>])
+        
+        <span class="comment">// Early termination check</span>
+        <span class="keyword">if</span> <span class="variable">row_min</span> > <span class="variable">min_possible</span>:
+            <span class="keyword">return</span> {<span class="string">match</span>: <span class="keyword">false</span>, <span class="string">similarity</span>: <span class="number">0</span>, <span class="string">exceeded_threshold</span>: <span class="keyword">true</span>}
+        
+        <span class="comment">// Swap rows for next iteration</span>
+        <span class="variable">prev_prev_row</span> = <span class="variable">prev_row</span>
+        <span class="variable">prev_row</span> = <span class="variable">curr_row</span>[<span class="keyword">:</span>]
+        <span class="variable">curr_row</span> = [<span class="number">0</span>] * (<span class="variable">m</span> + <span class="number">1</span>)
+    
+    <span class="variable">edit_distance</span> = <span class="variable">prev_row</span>[<span class="variable">m</span>]
+    <span class="variable">similarity</span> = <span class="number">1</span> - (<span class="variable">edit_distance</span> / <span class="variable">max_len</span>)
+    
+    <span class="keyword">return</span> {
+        <span class="string">match</span>: <span class="variable">similarity</span> >= <span class="variable">config</span>.<span class="variable">threshold</span>,
+        <span class="string">similarity</span>: <span class="variable">similarity</span>,
+        <span class="string">edit_distance</span>: <span class="variable">edit_distance</span>,
+        <span class="string">normalized_distance</span>: <span class="variable">edit_distance</span> / <span class="variable">max_len</span>,
+        <span class="string">operations</span>: <span class="variable">self</span>.<span class="function">BacktrackOperations</span>(<span class="variable">s</span>, <span class="variable">t</span>)
+    }</code></pre>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-4 p-4 bg-[rgba(245,158,11,0.05)] rounded-lg border border-[rgba(245,158,11,0.2)]">
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Time Complexity</span>
+                                    <p class="font-mono font-semibold text-[#f59e0b]">O(mn) worst case</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">With Threshold</span>
+                                    <p class="font-mono font-semibold text-[#00d4aa]">O(min(m,n)*k)</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Space Optimized</span>
+                                    <p class="font-mono font-semibold text-[#3b82f6]">O(min(m,n))</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-[#8b9cb8] uppercase tracking-wide">Variant</span>
+                                    <p class="font-mono font-semibold text-[#a855f7]">Damerau-Levenshtein</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Improvements Section -->
+        <section id="improvements" class="content-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                
+                <div class="mb-12 animate-in">
+                    <h1 class="text-3xl sm:text-4xl font-bold mb-4">Algorithm Improvisations</h1>
+                    <p class="text-[#8b9cb8] text-lg">Optimization techniques and enhancements applied to improve performance and accuracy</p>
+                </div>
+
+                <!-- Improvement Categories -->
+                <div class="space-y-6">
+                    
+                    <!-- Improvement 1: Caching Layer -->
+                    <div class="accordion-item animate-in" style="transition-delay: 0.1s;">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00d4aa] to-[#00a884] flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold">Multi-Level Caching Architecture</h3>
+                                    <p class="text-sm text-[#8b9cb8]">LRU cache with TTL-based invalidation and write-through strategy</p>
+                                </div>
+                            </div>
+                            <svg class="accordion-icon w-6 h-6 text-[#8b9cb8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-6 pt-0 space-y-4">
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="p-4 bg-[rgba(0,212,170,0.05)] rounded-lg border border-[rgba(0,212,170,0.2)]">
+                                        <h4 class="font-semibold text-[#00d4aa] mb-2">Before Optimization</h4>
+                                        <ul class="space-y-2 text-sm text-[#8b9cb8]">
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-red-400 mt-0.5">✗</span>
+                                                No caching - every request computed fresh
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-red-400 mt-0.5">✗</span>
+                                                Repeated expensive calculations
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-red-400 mt-0.5">✗</span>
+                                                High latency for identical queries
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-red-400 mt-0.5">✗</span>
+                                                Response time: 150-300ms avg
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="p-4 bg-[rgba(0,212,170,0.1)] rounded-lg border border-[rgba(0,212,170,0.3)]">
+                                        <h4 class="font-semibold text-[#00d4aa] mb-2">After Optimization</h4>
+                                        <ul class="space-y-2 text-sm text-[#8b9cb8]">
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-[#00d4aa] mt-0.5">✓</span>
+                                                3-tier cache (L1: Memory, L2: Redis, L3: Disk)
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-[#00d4aa] mt-0.5">✓</span>
+                                                Adaptive TTL based on data volatility
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-[#00d4aa] mt-0.5">✓</span>
+                                                Cache hit rate: 87%
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-[#00d4aa] mt-0.5">✓</span>
+                                                Response time: 8-25ms avg
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="code-block mt-4">
+                                    <div class="code-header">
+                                        <div class="code-dot bg-red-500"></div>
+                                        <div class="code-dot bg-yellow-500"></div>
+                                        <div class="code-dot bg-green-500"></div>
+                                        <span class="ml-4 text-xs text-[#8b9cb8]">cache_implementation.py</span>
+                                    </div>
+                                    <pre><code><span class="keyword">class</span> <span class="type">MultiLevelCache</span>:
+    <span class="comment"># L1: In-memory LRU cache (fastest, smallest)</span>
+    <span class="variable">l1_cache</span> = LRUCache(<span class="variable">max_size</span>=<span class="number">1000</span>, <span class="variable">ttl_seconds</span>=<span class="number">60</span>)
+    
+    <span class="comment"># L2: Redis distributed cache (medium speed, larger)</span>
+    <span class="variable">l2_cache</span> = RedisCache(<span class="variable">ttl_seconds</span>=<span class="number">3600</span>, <span class="variable">compression</span>=<span class="keyword">true</span>)
+    
+    <span class="comment"># L3: Disk-based cache (slowest, largest, persistent)</span>
+    <span class="variable">l3_cache</span> = DiskCache(<span class="variable">max_size_gb</span>=<span class="number">10</span>, <span class="variable">ttl_hours</span>=<span class="number">24</span>)
+    
+    <span class="keyword">def</span> <span class="function">get</span>(<span class="variable">key</span>):
+        <span class="comment">// Try L1 first (nanosecond access)</span>
+        <span class="keyword">if</span> <span class="variable">result</span> := <span class="variable">self.l1_cache.get</span>(<span class="variable">key</span>):
+            <span class="keyword">return</span> <span class="variable">result</span>
+        
+        <span class="comment">// Fall back to L2 (microsecond access)</span>
+        <span class="keyword">if</span> <span class="variable">result</span> := <span class="variable">self.l2_cache.get</span>(<span class="variable">key</span>):
+            <span class="variable">self.l1_cache.set</span>(<span class="variable">key</span>, <span class="variable">result</span>)  <span class="comment">// Promote to L1</span>
+            <span class="keyword">return</span> <span class="variable">result</span>
+        
+        <span class="comment">// Fall back to L3 (millisecond access)</span>
+        <span class="keyword">if</span> <span class="variable">result</span> := <span class="variable">self.l3_cache.get</span>(<span class="variable">key</span>):
+            <span class="variable">self.l2_cache.set</span>(<span class="variable">key</span>, <span class="variable">result</span>)  <span class="comment">// Promote to L2</span>
+            <span class="variable">self.l1_cache.set</span>(<span class="variable">key</span>, <span class="variable">result</span>)  <span class="comment">// Promote to L1</span>
+            <span class="keyword">return</span> <span class="variable">result</span>
+        
+        <span class="keyword">return None</span>  <span class="comment">// Cache miss</span></code></pre>
+                                </div>
+                                
+                                <div class="flex items-center gap-4 p-4 bg-[#1a2234] rounded-lg">
+                                    <div class="text-3xl font-bold text-[#00d4aa]">94%</div>
+                                    <div>
+                                        <div class="text-sm font-medium">Latency Reduction</div>
+                                        <div class="text-xs text-[#8b9cb8]">Compared to uncached baseline</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Improvement 2: Parallel Processing -->
+                    <div class="accordion-item animate-in" style="transition-delay: 0.2s;">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#2563eb] flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold">Parallel Processing Pipeline</h3>
+                                    <p class="text-sm text-[#8b9cb8]">Work-stealing scheduler with async I/O and CPU-bound task separation</p>
+                                </div>
+                            </div>
+                            <svg class="accordion-icon w-6 h-6 text-[#8b9cb8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-6 pt-0 space-y-4">
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="p-4 bg-[rgba(59,130,246,0.1)] rounded-lg border border-[rgba(59,130,246,0.3)] text-center">
+                                        <div class="text-3xl font-bold text-[#3b82f6]">4.2x</div>
+                                        <div class="text-sm text-[#8b9cb8]">Throughput Increase</div>
+                                    </div>
+                                    <div class="p-4 bg-[rgba(59,130,246,0.1)] rounded-lg border border-[rgba(59,130,246,0.3)] text-center">
+                                        <div class="text-3xl font-bold text-[#3b82f6]">76%</div>
+                                        <div class="text-sm text-[#8b9cb8]">CPU Utilization</div>
+                                    </div>
+                                    <div class="p-4 bg-[rgba(59,130,246,0.1)] rounded-lg border border-[rgba(59,130,246,0.3)] text-center">
+                                        <div class="text-3xl font-bold text-[#3b82f6]">&lt;5ms</div>
+                                        <div class="text-sm text-[#8b9cb8]">Task Scheduling Overhead</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <div class="code-dot bg-red-500"></div>
+                                        <div class="code-dot bg-yellow-500"></div>
+                                        <div class="code-dot bg-green-500"></div>
+                                        <span class="ml-4 text-xs text-[#8b9cb8]">parallel_pipeline.py</span>
+                                    </div>
+                                    <pre><code><span class="keyword">async def</span> <span class="function">ParallelVerificationPipeline</span>(<span class="variable">input_batch</span>):
+    <span class="comment">// Separate I/O-bound and CPU-bound tasks</span>
+    <span class="variable">io_tasks</span> = []      <span class="comment">// Database lookups, API calls</span>
+    <span class="variable">cpu_tasks</span> = []     <span class="comment">// Computation-heavy processing</span>
+    
+    <span class="keyword">for</span> <span class="variable">item</span> <span class="keyword">in</span> <span class="variable">input_batch</span>:
+        <span class="variable">io_tasks</span>.<span class="function">append</span>(<span class="variable">fetch_metadata</span>(<span class="variable">item.id</span>))
+        <span class="variable">cpu_tasks</span>.<span class="function">append</span>((<span class="variable">item</span>, <span class="variable">compute_features</span>))
+    
+    <span class="comment">// Execute I/O tasks concurrently (event loop)</span>
+    <span class="variable">metadata_results</span> = <span class="keyword">await</span> <span class="function">gather</span>(*<span class="variable">io_tasks</span>)
+    
+    <span class="comment">// Dispatch CPU tasks to process pool</span>
+    <span class="variable">loop</span> = <span class="function">get_event_loop</span>()
+    <span class="variable">with ProcessPoolExecutor</span>(<span class="variable">max_workers</span>=<span class="variable">cpu_count</span>()) <span class="keyword">as</span> <span class="variable">pool</span>:
+        <span class="variable">compute_futures</span> = [
+            <span class="variable">loop.run_in_executor</span>(<span class="variable">pool</span>, <span class="variable">fn</span>, <span class="variable">data</span>)
+            <span class="keyword">for</span> <span class="variable">data</span>, <span class="variable">fn</span> <span class="keyword">in</span> <span class="variable">cpu_tasks</span>
+        ]
+        <span class="variable">compute_results</span> = <span class="keyword">await</span> <span class="function">gather</span>(*<span class="variable">compute_futures</span>)
+    
+    <span class="comment">// Merge results maintaining order</span>
+    <span class="keyword">return</span> [
+        {**<span class="variable">meta</span>, **<span class="variable">compute</span>} 
+        <span class="keyword">for</span> <span class="variable">meta</span>, <span class="variable">compute</span> <span class="keyword">in</span> <span class="function">zip</span>(<span class="variable">metadata_results</span>, <span class="variable">compute_results</span>)
+    ]</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Improvement 3: Adaptive Thresholding -->
+                    <div class="accordion-item animate-in" style="transition-delay: 0.3s;">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#a855f7] to-[#9333ea] flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold">Dynamic Threshold Adjustment</h3>
+                                    <p class="text-sm text-[#8b9cb8]">Machine learning-powered threshold tuning based on historical accuracy patterns</p>
+                                </div>
+                            </div>
+                            <svg class="accordion-icon w-6 h-6 text-[#8b9cb8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-6 pt-0 space-y-4">
+                                <div class="p-4 bg-[rgba(168,85,247,0.1)] rounded-lg border border-[rgba(168,85,247,0.3)]">
+                                    <h4 class="font-semibold text-[#a855f7] mb-3">How It Works</h4>
+                                    <ol class="space-y-3 text-sm text-[#8b9cb8]">
+                                        <li class="flex gap-3">
+                                            <span class="w-6 h-6 rounded-full bg-[#a855f7] text-white text-xs flex items-center justify-center flex-shrink-0">1</span>
+                                            <span>Collect feedback signals (user corrections, manual reviews)</span>
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="w-6 h-6 rounded-full bg-[#a855f7] text-white text-xs flex items-center justify-center flex-shrink-0">2</span>
+                                            <span>Analyze false positive/negative rates per category</span>
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="w-6 h-6 rounded-full bg-[#a855f7] text-white text-xs flex items-center justify-center flex-shrink-0">3</span>
+                                            <span>Apply exponential moving average to smooth adjustments</span>
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="w-6 h-6 rounded-full bg-[#a855f7] text-white text-xs flex items-center justify-center flex-shrink-0">4</span>
+                                            <span>Clamp thresholds within safe bounds to prevent drift</span>
+                                        </li>
+                                    </ol>
+                                </div>
+                                
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <div class="code-dot bg-red-500"></div>
+                                        <div class="code-dot bg-yellow-500"></div>
+                                        <div class="code-dot bg-green-500"></div>
+                                        <span class="ml-4 text-xs text-[#8b9cb8]">adaptive_threshold.py</span>
+                                    </div>
+                                    <pre><code><span class="keyword">class</span> <span class="type">AdaptiveThresholdManager</span>:
+    <span class="variable">BASELINE_THRESHOLDS</span> = {
+        <span class="string">"strict"</span>: <span class="number">0.92</span>,
+        <span class="string">"moderate"</span>: <span class="number">0.78</span>,
+        <span class="string">"lenient"</span>: <span class="number">0.65</span>
+    }
+    
+    <span class="variable">ADJUSTMENT_RANGE</span> = <span class="number">0.15</span>  <span class="comment">// +/- 15% from baseline</span>
+    <span class="variable">EMA_ALPHA</span> = <span class="number">0.1</span>         <span class="comment">// Smoothing factor</span>
+    
+    <span class="keyword">def</span> <span class="function">compute_adaptive_threshold</span>(<span class="variable">category</span>, <span class="variable">context</span>):
+        <span class="variable">baseline</span> = <span class="variable">self.BASELINE_THRESHOLDS</span>[<span class="variable">context.mode</span>]
+        
+        <span class="comment">// Get recent accuracy metrics</span>
+        <span class="variable">metrics</span> = <span class="variable">self.metrics_store</span>.<span class="function">get_recent</span>(
+            <span class="variable">category</span>, 
+            <span class="variable">window_days</span>=<span class="number">7</span>
+        )
+        
+        <span class="keyword">if not</span> <span class="variable">metrics</span>:
+            <span class="keyword">return</span> <span class="variable">baseline</span>
+        
+        <span class="comment">// Calculate error ratio (FP vs FN trade-off)</span>
+        <span class="variable">fp_rate</span> = <span class="variable">metrics.false_positives</span> / <span class="function">max</span>(<span class="variable">metrics.total_predictions</span>, <span class="number">1</span>)
+        <span class="variable">fn_rate</span> = <span class="variable">metrics.false_negatives</span> / <span class="function">max</span>(<span class="variable">metrics.total_actual_positives</span>, <span class="number">1</span>)
+        
+        <span class="comment">// Determine adjustment direction</span>
+        <span class="keyword">if</span> <span class="variable">fp_rate</span> > <span class="number">0.2</span>:  <span class="comment">// Too many false positives → raise threshold</span>
+            <span class="variable">adjustment</span> = <span class="variable">fp_rate</span> * <span class="variable">self.ADJUSTMENT_RANGE</span>
+        <span class="keyword">elif</span> <span class="variable">fn_rate</span> > <span class="number">0.2</span>:  <span class="comment">// Too many false negatives → lower threshold</span>
+            <span class="variable">adjustment</span> = -<span class="variable">fn_rate</span> * <span class="variable">self.ADJUSTMENT_RANGE</span>
+        <span class="keyword">else</span>:
+            <span class="variable">adjustment</span> = <span class="number">0</span>
+        
+        <span class="comment">// Apply EMA smoothing</span>
+        <span class="variable">smoothed_adjustment</span> = (
+            <span class="variable">self.EMA_ALPHA</span> * <span class="variable">adjustment</span> +
+            (<span class="number">1</span> - <span class="variable">self.EMA_ALPHA</span>) * <span class="variable">self.previous_adjustments</span>.<span class="function">get</span>(<span class="variable">category</span>, <span class="number">0</span>)
+        )
+        
+        <span class="comment">// Clamp to safe bounds</span>
+        <span class="variable">new_threshold</span> = <span class="function">clamp</span>(
+            <span class="variable">baseline</span> + <span class="variable">smoothed_adjustment</span>,
+            <span class="variable">baseline</span> - <span class="variable">self.ADJUSTMENT_RANGE</span>,
+            <span class="variable">baseline</span> + <span class="variable">self.ADJUSTMENT_RANGE</span>
+        )
+        
+        <span class="variable">self.previous_adjustments</span>[<span class="variable">category</span>] = <span class="variable">smoothed_adjustment</span>
+        
+        <span class="keyword">return</span> <span class="variable">new_threshold</span></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Improvement 4: Incremental Processing -->
+                    <div class="accordion-item animate-in" style="transition-delay: 0.4s;">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#f59e0b] to-[#d97706] flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold">Incremental/Delta Processing</h3>
+                                    <p class="text-sm text-[#8b9cb8]">Process only changed portions using diff-based change detection</p>
+                                </div>
+                            </div>
+                            <svg class="accordion-icon w-6 h-6 text-[#8b9cb8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-6 pt-0 space-y-4">
+                                <div class="overflow-x-auto">
+                                    <table class="comparison-table text-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Metric</th>
+                                                <th>Full Re-processing</th>
+                                                <th>Incremental Mode</th>
+                                                <th>Improvement</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="font-medium">Processing Time</td>
+                                                <td>2.4s avg</td>
+                                                <td class="text-[#00d4aa]">0.18s avg</td>
+                                                <td><span class="text-[#00d4aa] font-semibold">13x faster</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">CPU Usage</td>
+                                                <td>89% peak</td>
+                                                <td class="text-[#00d4aa]">23% peak</td>
+                                                <td><span class="text-[#00d4aa] font-semibold">74% reduction</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">Memory Footprint</td>
+                                                <td>512MB</td>
+                                                <td class="text-[#00d4aa]">48MB</td>
+                                                <td><span class="text-[#00d4aa] font-semibold">90% reduction</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">I/O Operations</td>
+                                                <td>Full file read</td>
+                                                <td class="text-[#00d4aa]">Diff patch only</td>
+                                                <td><span class="text-[#00d4aa] font-semibold">95% less I/O</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <div class="code-dot bg-red-500"></div>
+                                        <div class="code-dot bg-yellow-500"></div>
+                                        <div class="code-dot bg-green-500"></div>
+                                        <span class="ml-4 text-xs text-[#8b9cb8]">incremental_processor.py</span>
+                                    </div>
+                                    <pre><code><span class="keyword">class</span> <span class="type">IncrementalProcessor</span>:
+    <span class="keyword">def</span> <span class="function">process_changes</span>(<span class="variable">document_id</span>, <span class="variable">new_content</span>):
+        <span class="comment">// Retrieve previously processed state</span>
+        <span class="variable">cached_state</span> = <span class="variable">self.state_store</span>.<span class="function">get</span>(<span class="variable">document_id</span>)
+        
+        <span class="keyword">if not</span> <span class="variable">cached_state</span>:
+            <span class="comment">// First time processing - do full analysis</span>
+            <span class="keyword">return</span> <span class="variable">self.full_process</span>(<span class="variable">new_content</span>)
+        
+        <span class="comment">// Compute diff between old and new content</span>
+        <span class="variable">diff</span> = <span class="function">compute_myers_diff</span>(
+            <span class="variable">cached_state.content_hash</span>,
+            <span class="variable">new_content</span>
+        )
+        
+        <span class="keyword">if</span> <span class="variable">diff.changes_ratio</span> < <span class="number">0.1</span>:  <span class="comment">// Less than 10% changed</span>
+            <span class="comment">// Only re-process affected regions</span>
+            <span class="variable">affected_ranges</span> = <span class="variable">diff.get_affected_regions</span>(
+                <span class="variable">window_size</span>=<span class="number">100</span>  <span class="comment">// Context window</span>
+            )
+            
+            <span class="variable">partial_results</span> = []
+            <span class="keyword">for</span> <span class="variable">range</span> <span class="keyword">in</span> <span class="variable">affected_ranges</span>:
+                <span class="variable">segment</span> = <span class="variable">new_content</span>[<span class="variable">range.start</span>:<span class="range.end</span>]
+                <span class="variable">result</span> = <span class="variable">self.analyze_segment</span>(<span class="variable">segment</span>)
+                <span class="variable">partial_results.append</span>(<span class="variable">result</span>)
+            
+            <span class="comment">// Merge with unchanged cached results</span>
+            <span class="variable">final_state</span> = <span class="variable">self.merger.merge</span>(
+                <span class="variable">cached_state.results</span>,
+                <span class="variable">partial_results</span>,
+                <span class="variable">diff.operations</span>
+            )
+        <span class="keyword">else</span>:
+            <span class="comment">// Too many changes - fall back to full process</span>
+            <span class="variable">final_state</span> = <span class="variable">self.full_process</span>(<span class="variable">new_content</span>)
+        
+        <span class="comment">// Update cache with new state</span>
+        <span class="variable">self.state_store.set</span>(<span class="variable">document_id</span>, <span class="variable">final_state</span>)
+        
+        <span class="keyword">return</span> <span class="variable">final_state</span></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Section -->
+        <section id="comparison" class="content-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                
+                <div class="mb-12 animate-in">
+                    <h1 class="text-3xl sm:text-4xl font-bold mb-4">Performance Benchmarks</h1>
+                    <p class="text-[#8b9cb8] text-lg">Head-to-head comparison of original vs optimized implementations</p>
+                </div>
+
+                <!-- Benchmark Summary Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 animate-in" style="transition-delay: 0.1s;">
+                    <div class="stat-card">
+                        <div class="stat-value">47%</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Overall Speedup</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">89%</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Memory Saved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">99.97%</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Accuracy Maintained</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3.2x</div>
+                        <div class="text-[#8b9cb8] text-sm mt-1">Throughput Gain</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Comparison Table -->
+                <div class="algo-card mb-12 animate-in" style="transition-delay: 0.2s;">
+                    <div class="algo-header">
+                        <h3 class="text-xl font-semibold">Algorithm Performance Matrix</h3>
+                    </div>
+                    <div class="p-6 overflow-x-auto">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Algorithm</th>
+                                    <th>Original Time</th>
+                                    <th>Optimized Time</th>
+                                    <th>Speedup</th>
+                                    <th>Original Space</th>
+                                    <th>Optimized Space</th>
+                                    <th>Savings</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">Data Validation Engine</td>
+                                    <td>O(n²)</td>
+                                    <td class="text-[#00d4aa]">O(n)</td>
+                                    <td><span class="complexity-badge badge-onlogn">n× faster</span></td>
+                                    <td>O(n)</td>
+                                    <td class="text-[#00d4aa]">O(1)</td>
+                                    <td><span class="text-[#00d4aa]">100%</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Pattern Recognition</td>
+                                    <td>O(n·m)</td>
+                                    <td class="text-[#00d4aa]">O(n log n + m)</td>
+                                    <td><span class="complexity-badge badge-onlogn">log n×</span></td>
+                                    <td>O(n·m)</td>
+                                    <td class="text-[#00d4aa]">O(n)</td>
+                                    <td><span class="text-[#00d4aa]">m×</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Confidence Scorer</td>
+                                    <td>O(k²)</td>
+                                    <td class="text-[#00d4aa]">O(k)</td>
+                                    <td><span class="complexity-badge badge-on">k× faster</span></td>
+                                    <td>O(k)</td>
+                                    <td class="text-[#00d4aa]">O(1)</td>
+                                    <td><span class="text-[#00d4aa]">100%</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Fuzzy String Match</td>
+                                    <td>O(m·n)</td>
+                                    <td class="text-[#00d4aa]">O(k·min(m,n))</td>
+                                    <td><span class="complexity-badge badge-on">Early term.</span></td>
+                                    <td>O(m·n)</td>
+                                    <td class="text-[#00d4aa]">O(min(m,n))</td>
+                                    <td><span class="text-[#00d4aa]">~50%</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Anomaly Detection</td>
+                                    <td>O(n³)</td>
+                                    <td class="text-[#00d4aa]">O(n log n)</td>
+                                    <td><span class="complexity-badge badge-onlogn">n²/log n×</span></td>
+                                    <td>O(n²)</td>
+                                    <td class="text-[#00d4aa]">O(n)</td>
+                                    <td><span class="text-[#00d4aa]">n×</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Visual Benchmark Chart -->
+                <div class="grid md:grid-cols-2 gap-6 animate-in" style="transition-delay: 0.3s;">
+                    <div class="algo-card">
+                        <div class="algo-header">
+                            <h3 class="text-lg font-semibold">Execution Time Comparison (ms)</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Data Validation</span>
+                                        <span class="text-[#8b9cb8]">245ms → 18ms</span>
+                                    </div>
+                                    <div class="h-4 bg-[#1a2234] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-[#ef4444] rounded-l-full" style="width: 85%;"></div>
+                                        <div class="h-full bg-[#00d4aa] rounded-r-full" style="width: 6%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Pattern Matching</span>
+                                        <span class="text-[#8b9cb8]">512ms → 67ms</span>
+                                    </div>
+                                    <div class="h-4 bg-[#1a2234] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-[#ef4444] rounded-l-full" style="width: 90%;"></div>
+                                        <div class="h-full bg-[#00d4aa] rounded-r-full" style="width: 12%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Confidence Scoring</span>
+                                        <span class="text-[#8b9cb8]">89ms → 12ms</span>
+                                    </div>
+                                    <div class="h-4 bg-[#1a2234] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-[#ef4444] rounded-l-full" style="width: 75%;"></div>
+                                        <div class="h-full bg-[#00d4aa] rounded-r-full" style="width: 10%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Fuzzy Matching</span>
+                                        <span class="text-[#8b9cb8]">156ms → 34ms</span>
+                                    </div>
+                                    <div class="h-4 bg-[#1a2234] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-[#ef4444] rounded-l-full" style="width: 80%;"></div>
+                                        <div class="h-full bg-[#00d4aa] rounded-r-full" style="width: 17%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>Anomaly Detection</span>
+                                        <span class="text-[#8b9cb8]">1240ms → 145ms</span>
+                                    </div>
+                                    <div class="h-4 bg-[#1a2234] rounded-full overflow-hidden flex">
+                                        <div class="h-full bg-[#ef4444] rounded-l-full" style="width: 92%;"></div>
+                                        <div class="h-full bg-[#00d4aa] rounded-r-full" style="width: 11%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6 mt-4 text-xs text-[#8b9cb8]">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded bg-[#ef4444]"></div>
+                                    Original
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded bg-[#00d4aa]"></div>
+                                    Optimized
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="algo-card">
+                        <div class="algo-header">
+                            <h3 class="text-lg font-semibold">Real-world Throughput</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 bg-[rgba(239,68,68,0.1)] rounded-lg border border-[rgba(239,68,68,0.3)]">
+                                    <div class="text-2xl font-bold text-[#ef4444] mb-1">842</div>
+                                    <div class="text-sm text-[#8b9cb8]">req/sec (Original)</div>
+                                    <div class="text-xs text-[#ef4444] mt-2">Baseline System</div>
+                                </div>
+                                <div class="p-4 bg-[rgba(0,212,170,0.1)] rounded-lg border border-[rgba(0,212,170,0.3)]">
+                                    <div class="text-2xl font-bold text-[#00d4aa] mb-1">3,894</div>
+                                    <div class="text-sm text-[#8b9cb8]">req/sec (Optimized)</div>
+                                    <div class="text-xs text-[#00d4aa] mt-2">Current System</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 p-4 bg-[#111827] rounded-lg">
+                                <div class="text-sm font-medium mb-3">Test Configuration</div>
+                                <ul class="space-y-2 text-xs text-[#8b9cb8]">
+                                    <li class="flex justify-between">
+                                        <span>Test Duration</span>
+                                        <span class="font-mono">60 seconds</span>
+                                    </li>
+                                    <li class="flex justify-between">
+                                        <span>Concurrent Users</span>
+                                        <span class="font-mono">100 users</span>
+                                    </li>
+                                    <li class="flex justify-between">
+                                        <span>Average Payload Size</span>
+                                        <span class="font-mono">4.2 KB</span>
+                                    </li>
+                                    <li class="flex justify-between">
+                                        <span>P99 Latency (Optimized)</span>
+                                        <span class="font-mono text-[#00d4aa]">48ms</span>
+                                    </li>
+                                    <li class="flex justify-between">
+                                        <span>Error Rate</span>
+                                        <span class="font-mono text-[#00d4aa]">0.002%</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-[#2a3548] mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00d4aa] to-[#3b82f6] flex items-center justify-center">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12l2 2 4-4"/>
+                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.12 0 4.07.74 5.61 1.97"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm text-[#8b9cb8]">VeriCheck AI Algorithm Documentation</span>
+                </div>
+                <div class="text-sm text-[#8b9cb8]">
+                    Built with precision. Verified with confidence.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize variables first
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const sections = document.querySelectorAll('.content-section');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+
+        // Tab switching function
+        function switchTab(tabId) {
+            // Update nav tabs
+            navTabs.forEach(tab => {
+                if (tab.dataset.tab === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Update sections
+            sections.forEach(section => {
+                if (section.id === tabId) {
+                    section.classList.add('active');
+                    // Trigger animations
+                    const animatedElements = section.querySelectorAll('.animate-in');
+                    animatedElements.forEach((el, index) => {
+                        setTimeout(() => {
+                            el.classList.add('visible');
+                        }, index * 100);
+                    });
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+
+            // Close mobile menu
+            if (mobileNav) {
+                mobileNav.classList.remove('open');
+            }
+        }
+
+        // Click handlers for tabs
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                if (targetTab) {
+                    switchTab(targetTab);
+                }
+            });
+        });
+
+        // Mobile menu toggle
+        if (mobileMenuBtn && mobileNav) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileNav.classList.toggle('open');
+            });
+        }
+
+        // Accordion toggle
+        function toggleAccordion(header) {
+            const item = header.closest('.accordion-item');
+            if (item) {
+                item.classList.toggle('open');
+            }
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.animate-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Initial animation trigger for visible elements
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeSection = document.querySelector('.content-section.active');
+            if (activeSection) {
+                const animatedElements = activeSection.querySelectorAll('.animate-in');
+                animatedElements.forEach((el, index) => {
+                    setTimeout(() => {
+                        el.classList.add('visible');
+                    }, index * 100);
+                });
+            }
+        });
+
+        // Keyboard navigation support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (mobileNav && mobileNav.classList.contains('open')) {
+                    mobileNav.classList.remove('open');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
+This is a comprehensive algorithm documentation page for VeriCheck AI that includes:
+
+**Key Features:**
+
+1. **Four Navigation Tabs:**
+   - **Overview**: Dashboard-style landing with stats and quick access cards
+   - **Algorithms**: Complete pseudocode for 4 core algorithms with syntax highlighting
+   - **Improvements**: Detailed optimization techniques with before/after comparisons
+   - **Comparison**: Performance benchmarks and visual charts
+
+2. **Algorithm Documentation Includes:**
+   - Full pseudocode with proper formatting
+   - Time complexity analysis (Big-O notation)
+   - Space complexity metrics
+   - Best/worst case scenarios
+   - Color-coded complexity badges
+
+3. **Documented Algorithms:**
+   - Data Validation Engine (DVE) - O(n)
+   - Pattern Recognition Core (PRC) - O(n log n)
+   - Bayesian Confidence Scorer (BCS) - O(k)
+   - Fuzzy String Matcher (FSM) - O(mn)
+
+4. **Improvements Section Covers:**
+   - Multi-level caching architecture (94% latency reduction)
+   - Parallel processing pipeline (4.2x throughput increase)
+   - Dynamic threshold adjustment with ML
+   - Incremental/delta processing (13x faster)
+
+5. **Design Highlights:**
+   - Dark theme with cyan/blue accent colors
+   - Animated background orbs and grid
+   - Syntax-highlighted code blocks
+   - Expandable accordion sections
+   - Responsive design for mobile
+   - Smooth scroll-triggered animations
